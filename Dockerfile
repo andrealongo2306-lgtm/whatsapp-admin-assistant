@@ -24,7 +24,7 @@ USER spring:spring
 COPY --from=build /app/target/*.jar app.jar
 
 # Crea directory per tokens Gmail
-RUN mkdir -p /app/tokens
+#RUN mkdir -p /app/tokens
 
 # Espone porta
 EXPOSE 8080
