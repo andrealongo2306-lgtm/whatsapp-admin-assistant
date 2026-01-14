@@ -1,0 +1,23 @@
+spring:
+  data:
+    mongodb:
+      uri: mongodb://localhost:27017/test_db
+
+twilio:
+  account-sid: test-account-sid
+  auth-token: test-auth-token
+  whatsapp-number: whatsapp:+14155238886
+  webhook-url: http://localhost:8080/api/whatsapp/webhook
+  mock-mode: true
+
+gmail:
+  application-name: WhatsApp Assistant Test
+  tokens-directory: tokens-test
+  user-email: test@example.com
+
+app:
+  client:
+    email: client@example.com
+  admin:
+    phone-number: whatsapp:+39123456789
+  session-timeout-minutes: 30

@@ -1,0 +1,60 @@
+version: '3.8'
+
+services:
+  # MongoDB
+  mongodb:
+    image: mongo:7.0
+    container_name: whatsapp-assistant-mongodb
+    restart: unless-stopped
+    ports:
+      - "27017:27017"
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: admin
+      MONGO_INITDB_ROOT_PASSWORD: password123
+      MONGO_INITDB_DATABASE: whatsapp_assistant
+    volumes:
+      - mongodb_data:/data/db
+    networks:
+      - whatsapp-network
+
+  # Spring Boot Application
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: whatsapp-assistant-app
+    restart: unless-stopped
+    ports:
+      - "8080:8080"
+    environment:
+      # MongoDB
+      SPRING_DATA_MONGODB_URI: mongodb://admin:password123@mongodb:27017/whatsapp_assistant?authSource=admin
+      
+      # Twilio (da configurare con i tuoi valori)
+      TWILIO_ACCOUNT_SID: ${TWILIO_ACCOUNT_SID}
+      TWILIO_AUTH_TOKEN: ${TWILIO_AUTH_TOKEN}
+      TWILIO_WHATSAPP_NUMBER: ${TWILIO_WHATSAPP_NUMBER}
+      TWILIO_WEBHOOK_URL: ${TWILIO_WEBHOOK_URL}
+      
+      # Gmail (da configurare con i tuoi valori)
+      GMAIL_USER_EMAIL: ${GMAIL_USER_EMAIL}
+      
+      # Application
+      ADMIN_PHONE: ${ADMIN_PHONE}
+    volumes:
+      - ./src/main/resources/credentials.json:/app/config/credentials.json:ro
+      - gmail_tokens:/app/tokens
+    depends_on:
+      - mongodb
+    networks:
+      - whatsapp-network
+
+volumes:
+  mongodb_data:
+    driver: local
+  gmail_tokens:
+    driver: local
+
+networks:
+  whatsapp-network:
+    driver: bridge
