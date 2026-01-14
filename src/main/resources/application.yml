@@ -1,0 +1,35 @@
+spring:
+  application:
+    name: whatsapp-admin-assistant
+
+  data:
+    mongodb:
+      uri: ${DATA_MONGODB_URI}
+      # Per MongoDB Atlas usa:
+      # uri: mongodb+srv://username:password@cluster.mongodb.net/whatsapp_assistant
+
+server:
+  port: 8080
+
+# Twilio Configuration
+twilio:
+  account-sid: ${TWILIO_SID}
+  auth-token: ${TWILIO_AUTH_TOKEN}
+  whatsapp-number: ${TWILIO_WHATSAPP_NUMBER}
+  webhook-url: ${TWILIO_WEBHOOK_URL}
+  mock-mode: true  # true = log messaggi senza inviarli (sviluppo), false = invia via Twilio (produzione)
+
+# Gmail Configuration
+gmail:
+  credentials-file: ${GMAIL_CREDENTIALS_FILE}
+  tokens-directory: ${GMAIL_TOKENS_DIR}
+  application-name: WhatsApp Admin Assistant
+  user-email: ${GMAIL_USER_EMAIL}
+
+# Application Configuration
+app:
+  session-timeout-minutes: 30
+  admin:
+    phone-number: ${ADMIN_PHONE}
+  client:
+    email: ${CLIENT_EMAIL}
