@@ -8,8 +8,8 @@ spring:
       # Per MongoDB Atlas usa:
       # uri: mongodb+srv://username:password@cluster.mongodb.net/whatsapp_assistant
 
-server:
-  port: 8080
+#server:
+#  port: 8080
 
 # Twilio Configuration
 twilio:
@@ -21,7 +21,7 @@ twilio:
 
 # Gmail Configuration
 gmail:
-  credentials-file: ${GMAIL_CREDENTIALS_FILE}
+  credentials-file: ${GMAIL_SECRET}
   tokens-directory: ${GMAIL_TOKENS_DIR}
   application-name: WhatsApp Admin Assistant
   user-email: ${GMAIL_USER_EMAIL}
