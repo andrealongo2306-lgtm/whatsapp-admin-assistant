@@ -27,7 +27,7 @@ COPY --from=build /app/target/*.jar app.jar
 #RUN mkdir -p /app/tokens
 
 # Espone porta
-EXPOSE 8080
+#EXPOSE 8080
 
 # Health check
 HEALTHCHECK --interval=30s --timeout=3s --start-period=40s --retries=3 \
