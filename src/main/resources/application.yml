@@ -21,7 +21,7 @@ twilio:
 
 # Gmail Configuration
 gmail:
-  credentials-file: ${GMAIL_SECRET}
+  credentials-file: ${GMAIL_SECRET_VALUE}
   tokens-directory: ${GMAIL_TOKENS_DIR}
   application-name: WhatsApp Admin Assistant
   user-email: ${GMAIL_USER_EMAIL}
