@@ -26,12 +26,13 @@ import jakarta.mail.internet.InternetAddress;
 import jakarta.mail.internet.MimeMessage;
 
 import javax.imageio.spi.ServiceRegistry;
+import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.nio.charset.StandardCharsets;
 import java.util.Collections;
 import java.util.List;
 import java.util.Properties;
@@ -65,13 +66,14 @@ public class EmailService {
      * Ottiene le credenziali OAuth2 per Gmail API
      */
     private Credential getCredentials(final NetHttpTransport HTTP_TRANSPORT) throws IOException {
-        // Carica le credenziali client
-        InputStream in = getClass().getClassLoader().getResourceAsStream("credentials.json");
-        if (in == null) {
-            throw new FileNotFoundException("File credentials.json non trovato");
+        // Carica le credenziali dalla configurazione (secret di Google Cloud)
+        String credentialsJson = gmailConfig.getCredentialsFile();
+        if (credentialsJson == null || credentialsJson.isBlank()) {
+            throw new IOException("Credenziali Gmail non configurate. Verificare gmail.credentials-file");
         }
-        
-        GoogleClientSecrets clientSecrets = GoogleClientSecrets.load(JSON_FACTORY, new InputStreamReader(in));
+
+        InputStream in = new ByteArrayInputStream(credentialsJson.getBytes(StandardCharsets.UTF_8));
+        GoogleClientSecrets clientSecrets = GoogleClientSecrets.load(JSON_FACTORY, new InputStreamReader(in, StandardCharsets.UTF_8));
         
         // Build flow e trigger user authorization request
         GoogleAuthorizationCodeFlow flow = new GoogleAuthorizationCodeFlow.Builder(
