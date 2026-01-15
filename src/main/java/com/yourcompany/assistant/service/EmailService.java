@@ -24,6 +24,8 @@ import org.springframework.stereotype.Service;
 import jakarta.mail.Session;
 import jakarta.mail.internet.InternetAddress;
 import jakarta.mail.internet.MimeMessage;
+
+import javax.imageio.spi.ServiceRegistry;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -49,6 +51,7 @@ public class EmailService {
     public void init() {
         try {
             final NetHttpTransport HTTP_TRANSPORT = GoogleNetHttpTransport.newTrustedTransport();
+            log.error("--GMAIL_CONFIG-- " + gmailConfig.getCredentialsFile());
             gmailService = new Gmail.Builder(HTTP_TRANSPORT, JSON_FACTORY, getCredentials(HTTP_TRANSPORT))
                     .setApplicationName(gmailConfig.getApplicationName())
                     .build();
