@@ -69,6 +69,7 @@ public class EmailService {
         // Carica le credenziali dalla configurazione (secret di Google Cloud)
         String credentialsJson = gmailConfig.getCredentialsFile();
         if (credentialsJson == null || credentialsJson.isBlank()) {
+
             throw new IOException("Credenziali Gmail non configurate. Verificare gmail.credentials-file");
         }
 
