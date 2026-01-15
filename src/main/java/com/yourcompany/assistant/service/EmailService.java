@@ -67,12 +67,24 @@ public class EmailService {
      * Ottiene le credenziali OAuth2 per Gmail API
      */
     private Credential getCredentials(final NetHttpTransport HTTP_TRANSPORT) throws IOException {
-        String credentialsJson = gmailConfig.getCredentialsFile();
-        if (credentialsJson == null || credentialsJson.isBlank()) {
+        String credentialsValue = gmailConfig.getCredentialsFile();
+        if (credentialsValue == null || credentialsValue.isBlank()) {
             throw new IOException("Credenziali Gmail non configurate. Verificare gmail.credentials-file");
         }
 
-        InputStream in = new ByteArrayInputStream(credentialsJson.getBytes(StandardCharsets.UTF_8));
+        InputStream in;
+        // Se inizia con '{' è JSON diretto (cloud), altrimenti è un path al file (locale)
+        if (credentialsValue.trim().startsWith("{")) {
+            log.info("Caricamento credenziali Gmail da JSON diretto");
+            in = new ByteArrayInputStream(credentialsValue.getBytes(StandardCharsets.UTF_8));
+        } else {
+            log.info("Caricamento credenziali Gmail da file: {}", credentialsValue);
+            in = getClass().getClassLoader().getResourceAsStream(credentialsValue);
+            if (in == null) {
+                throw new IOException("File credenziali non trovato: " + credentialsValue);
+            }
+        }
+
         GoogleClientSecrets clientSecrets = GoogleClientSecrets.load(JSON_FACTORY, new InputStreamReader(in, StandardCharsets.UTF_8));
 
         String refreshToken = gmailConfig.getRefreshToken();
@@ -97,7 +109,14 @@ public class EmailService {
                 .build();
 
         LocalServerReceiver receiver = new LocalServerReceiver.Builder().setPort(8888).build();
-        return new AuthorizationCodeInstalledApp(flow, receiver).authorize("user");
+        Credential credential = new AuthorizationCodeInstalledApp(flow, receiver).authorize("user");
+        /*
+        log.info("=== REFRESH TOKEN ===");
+        log.info(credential.getRefreshToken());
+        log.info("=====================================================");
+        */
+        return credential;
+
     }
     
     /**
