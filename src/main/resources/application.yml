@@ -17,8 +17,7 @@ twilio:
   auth-token: ${TWILIO_AUTH_TOKEN}
   whatsapp-number: ${TWILIO_WHATSAPP_NUMBER}
   webhook-url: ${TWILIO_WEBHOOK_URL}
-  mock-mode: true  # true = log messaggi senza inviarli (sviluppo), false = invia via Twilio (produzione)
-
+  mock-mode: true  # true = log messaggi senza inviarli (sviluppo), false = invia via T
 # Gmail Configuration
 gmail:
   credentials-file: ${GMAIL_SECRET_VALUE}

@@ -19,4 +19,7 @@ public class GmailConfig {
     
     @Value("${gmail.user-email}")
     private String userEmail;
+
+    @Value("${refresh-token:}")
+    private String refreshToken;
 }

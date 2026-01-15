@@ -5,6 +5,7 @@ import com.google.api.client.extensions.java6.auth.oauth2.AuthorizationCodeInsta
 import com.google.api.client.extensions.jetty.auth.oauth2.LocalServerReceiver;
 import com.google.api.client.googleapis.auth.oauth2.GoogleAuthorizationCodeFlow;
 import com.google.api.client.googleapis.auth.oauth2.GoogleClientSecrets;
+import com.google.api.client.googleapis.auth.oauth2.GoogleCredential;
 import com.google.api.client.googleapis.javanet.GoogleNetHttpTransport;
 import com.google.api.client.http.javanet.NetHttpTransport;
 import com.google.api.client.json.JsonFactory;
@@ -66,23 +67,35 @@ public class EmailService {
      * Ottiene le credenziali OAuth2 per Gmail API
      */
     private Credential getCredentials(final NetHttpTransport HTTP_TRANSPORT) throws IOException {
-        // Carica le credenziali dalla configurazione (secret di Google Cloud)
         String credentialsJson = gmailConfig.getCredentialsFile();
         if (credentialsJson == null || credentialsJson.isBlank()) {
-
             throw new IOException("Credenziali Gmail non configurate. Verificare gmail.credentials-file");
         }
 
         InputStream in = new ByteArrayInputStream(credentialsJson.getBytes(StandardCharsets.UTF_8));
         GoogleClientSecrets clientSecrets = GoogleClientSecrets.load(JSON_FACTORY, new InputStreamReader(in, StandardCharsets.UTF_8));
-        
-        // Build flow e trigger user authorization request
+
+        String refreshToken = gmailConfig.getRefreshToken();
+
+        // Se c'è un refresh token configurato (ambiente cloud), usalo direttamente
+        if (refreshToken != null && !refreshToken.isBlank()) {
+            log.info("Utilizzo refresh token pre-autorizzato per Gmail");
+            return new GoogleCredential.Builder()
+                    .setTransport(HTTP_TRANSPORT)
+                    .setJsonFactory(JSON_FACTORY)
+                    .setClientSecrets(clientSecrets)
+                    .build()
+                    .setRefreshToken(refreshToken);
+        }
+
+        // Altrimenti usa il flusso interattivo (solo per ambiente locale)
+        log.info("Avvio flusso OAuth interattivo per Gmail");
         GoogleAuthorizationCodeFlow flow = new GoogleAuthorizationCodeFlow.Builder(
                 HTTP_TRANSPORT, JSON_FACTORY, clientSecrets, SCOPES)
                 .setDataStoreFactory(new FileDataStoreFactory(new File(gmailConfig.getTokensDirectory())))
                 .setAccessType("offline")
                 .build();
-        
+
         LocalServerReceiver receiver = new LocalServerReceiver.Builder().setPort(8888).build();
         return new AuthorizationCodeInstalledApp(flow, receiver).authorize("user");
     }
