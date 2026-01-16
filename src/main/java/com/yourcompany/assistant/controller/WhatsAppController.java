@@ -27,7 +27,7 @@ public class WhatsAppController {
      * Twilio invia i dati come application/x-www-form-urlencoded
      */
     @PostMapping(value = "/webhook", consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
-    public ResponseEntity<String> handleIncomingMessage(@RequestParam Map<String, String> payload) {
+    public ResponseEntity<Void> handleIncomingMessage(@RequestParam Map<String, String> payload) {
         try {
             log.info("Ricevuto webhook da Twilio: {}", payload);
             
@@ -39,7 +39,7 @@ public class WhatsAppController {
             // Validazione
             if (from == null || body == null) {
                 log.warn("Payload incompleto ricevuto: {}", payload);
-                return ResponseEntity.badRequest().body("Missing required parameters");
+                return ResponseEntity.badRequest().build();
             }
             
             log.info("Messaggio ricevuto da {}: {}", from, body);
@@ -48,12 +48,12 @@ public class WhatsAppController {
             conversationService.processMessage(from, body);
             
             // Twilio si aspetta una risposta 200 OK entro 15 secondi
-            return ResponseEntity.ok("Message received");
+            // Risposta vuota per evitare che Twilio invii un messaggio automatico
+            return ResponseEntity.ok().build();
             
         } catch (Exception e) {
             log.error("Errore nel processamento del webhook: {}", e.getMessage(), e);
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body("Error processing message");
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
     }
     

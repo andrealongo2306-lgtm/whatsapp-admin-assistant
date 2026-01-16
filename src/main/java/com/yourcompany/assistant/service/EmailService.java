@@ -53,7 +53,6 @@ public class EmailService {
     public void init() {
         try {
             final NetHttpTransport HTTP_TRANSPORT = GoogleNetHttpTransport.newTrustedTransport();
-            log.error("--GMAIL_CONFIG-- " + gmailConfig.getCredentialsFile());
             gmailService = new Gmail.Builder(HTTP_TRANSPORT, JSON_FACTORY, getCredentials(HTTP_TRANSPORT))
                     .setApplicationName(gmailConfig.getApplicationName())
                     .build();
