@@ -12,9 +12,12 @@ import org.springframework.stereotype.Component;
 
 import jakarta.annotation.PostConstruct;
 
+import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+
+import org.springframework.scheduling.TaskScheduler;
 
 /**
  * Scheduler per la pulizia automatica delle sessioni scadute
@@ -29,6 +32,7 @@ public class SessionCleanupScheduler {
 
     private final ConversationRepository conversationRepository;
     private final TwilioService twilioService;
+    private final TaskScheduler taskScheduler;
 
     @Value("${app.session-timeout-minutes:30}")
     private int sessionTimeoutMinutes;
@@ -89,18 +93,18 @@ public class SessionCleanupScheduler {
 
     /**
      * Promemoria fatturazione ultimo giorno del mese
-     * Cron: ogni giorno alle 9:00, ma esegue solo se è l'ultimo giorno del mese
+     * Cron: ogni giorno alle 9:32 (TEST)
      */
-    @Scheduled(cron = "0 0 9 * * *")
+    @Scheduled(cron = "0 32 9 * * *")
     public void monthlyBillingReminder() {
-        LocalDate today = LocalDate.now();
-        LocalDate lastDayOfMonth = today.withDayOfMonth(today.lengthOfMonth());
+        // TODO: riabilitare controllo ultimo giorno del mese dopo test
+        // LocalDate today = LocalDate.now();
+        // LocalDate lastDayOfMonth = today.withDayOfMonth(today.lengthOfMonth());
+        // if (!today.equals(lastDayOfMonth)) {
+        //     return;
+        // }
 
-        if (!today.equals(lastDayOfMonth)) {
-            return;
-        }
-
-        log.info("Ultimo giorno del mese - invio promemoria fatturazione");
+        log.info("Invio promemoria fatturazione (TEST - ogni giorno alle 9:32)");
 
         try {
             // Reset o crea conversazione per admin
