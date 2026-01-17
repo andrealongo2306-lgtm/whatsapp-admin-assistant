@@ -12,12 +12,9 @@ import org.springframework.stereotype.Component;
 
 import jakarta.annotation.PostConstruct;
 
-import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
-
-import org.springframework.scheduling.TaskScheduler;
 
 /**
  * Scheduler per la pulizia automatica delle sessioni scadute
@@ -32,7 +29,6 @@ public class SessionCleanupScheduler {
 
     private final ConversationRepository conversationRepository;
     private final TwilioService twilioService;
-    private final TaskScheduler taskScheduler;
 
     @Value("${app.session-timeout-minutes:30}")
     private int sessionTimeoutMinutes;
@@ -95,7 +91,7 @@ public class SessionCleanupScheduler {
      * Promemoria fatturazione ultimo giorno del mese
      * Cron: ogni giorno alle 9:32 (TEST)
      */
-    @Scheduled(cron = "0 32 9 * * *")
+    @Scheduled(cron = "0 53 9 * * *")
     public void monthlyBillingReminder() {
         // TODO: riabilitare controllo ultimo giorno del mese dopo test
         // LocalDate today = LocalDate.now();
@@ -105,28 +101,36 @@ public class SessionCleanupScheduler {
         // }
 
         log.info("Invio promemoria fatturazione (TEST - ogni giorno alle 9:32)");
+        log.info("Admin phone number: {}", adminPhoneNumber);
 
         try {
             // Reset o crea conversazione per admin
+            log.info("Step 1: Recupero conversazione...");
             Conversation conversation = conversationRepository.findById(adminPhoneNumber)
                     .orElse(Conversation.builder()
                             .phoneNumber(adminPhoneNumber)
                             .createdAt(LocalDateTime.now())
                             .build());
 
+            log.info("Step 2: Reset conversazione...");
             conversation.reset();
             conversation.setCurrentState(ConversationState.WAITING_MONTH_YEAR);
             conversation.setLastUpdated(LocalDateTime.now());
             conversation.setCommesseAttiveIds(new ArrayList<>());
+
+            log.info("Step 3: Salvataggio conversazione...");
             conversationRepository.save(conversation);
 
             // Invia messaggio
+            log.info("Step 4: Invio messaggio WhatsApp...");
             String message = "Ciao! Sono il tuo assistente. E' ora di inviare l'autorizzazione alla fatturazione. Mese e anno? (es: Gennaio-2024)";
-            twilioService.sendWhatsAppMessage(adminPhoneNumber, message);
+            String sid = twilioService.sendWhatsAppMessage(adminPhoneNumber, message);
 
+            log.info("Step 5: Messaggio inviato con SID: {}", sid);
             log.info("Promemoria fatturazione inviato a {}", adminPhoneNumber);
         } catch (Exception e) {
             log.error("Errore invio promemoria fatturazione: {}", e.getMessage(), e);
+            e.printStackTrace();
         }
     }
 }
