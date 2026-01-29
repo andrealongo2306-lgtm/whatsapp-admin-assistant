@@ -5,8 +5,10 @@ import com.yourcompany.assistant.model.Commessa;
 import com.yourcompany.assistant.model.CommessaAnagrafica;
 import com.yourcompany.assistant.model.Conversation;
 import com.yourcompany.assistant.model.EmailDraft;
+import com.yourcompany.assistant.model.RichiestaFatturazione;
 import com.yourcompany.assistant.repository.CommessaAnagraficaRepository;
 import com.yourcompany.assistant.repository.ConversationRepository;
+import com.yourcompany.assistant.repository.RichiestaFatturazioneRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -25,6 +27,7 @@ public class ConversationService {
 
     private final ConversationRepository conversationRepository;
     private final CommessaAnagraficaRepository commessaAnagraficaRepository;
+    private final RichiestaFatturazioneRepository richiestaFatturazioneRepository;
     private final TwilioService twilioService;
     private final EmailService emailService;
 
@@ -89,24 +92,24 @@ public class ConversationService {
      * WAITING_MONTH_YEAR: Gestisce input mese-anno insieme
      */
     private String handleMonthYearInput(Conversation conversation, String message) {
-        // Formato atteso: "Mese-Anno" (es: "Gennaio-2024")
+        // Formato atteso: "Mese-Anno" (es: "Gennaio-2026")
         String[] parts = message.split("-");
 
         if (parts.length != 2) {
-            return "Formato non valido. Usa: Mese-Anno (es: Gennaio-2024)";
+            return "Formato non valido. Usa: Mese-Anno (es: Gennaio-2026)";
         }
 
         String month = capitalizeFirstLetter(parts[0].trim().toLowerCase());
         String yearStr = parts[1].trim();
 
         if (!isValidMonth(month)) {
-            return "Mese non valido. Usa: Mese-Anno (es: Gennaio-2024)";
+            return "Mese non valido. Usa: Mese-Anno (es: Gennaio-2026)";
         }
 
         try {
             int year = Integer.parseInt(yearStr);
-            if (year < 2020 || year > 2030) {
-                return "Anno non valido (2020-2030). Usa: Mese-Anno";
+            if (year < 2020 || year > 2050) {
+                return "Anno non valido (2020-2050). Usa: Mese-Anno";
             }
 
             conversation.setMonth(month);
@@ -142,9 +145,11 @@ public class ConversationService {
      */
     private String handleGiornateInput(Conversation conversation, String message) {
         try {
-            int giornate = Integer.parseInt(message.trim());
+            // Normalizza: sostituisce virgola con punto per supportare entrambi i formati
+            String normalizedInput = message.trim().replace(",", ".");
+            BigDecimal giornate = new BigDecimal(normalizedInput);
 
-            if (giornate < 0 || giornate > 31) {
+            if (giornate.compareTo(BigDecimal.ZERO) < 0 || giornate.compareTo(new BigDecimal("31")) > 0) {
                 return "Numero non valido (0-31):";
             }
 
@@ -160,7 +165,7 @@ public class ConversationService {
             CommessaAnagrafica anagrafica = optCommessa.get();
 
             // Crea e salva la commessa solo se giornate > 0
-            if (giornate > 0) {
+            if (giornate.compareTo(BigDecimal.ZERO) > 0) {
                 Commessa commessa = Commessa.builder()
                         .name(anagrafica.getName())
                         .tariffa(anagrafica.getTariffa())
@@ -192,7 +197,7 @@ public class ConversationService {
             return generateEmailPreview(conversation);
 
         } catch (NumberFormatException e) {
-            return "Inserisci un numero valido:";
+            return "Inserisci un numero valido (es: 20 o 20,5):";
         }
     }
 
@@ -222,6 +227,18 @@ public class ConversationService {
         try {
             EmailDraft draft = buildEmailDraft(conversation);
             emailService.sendEmail(draft);
+
+            // Salva le richieste di fatturazione nel DB
+            for (Commessa c : conversation.getCommesse()) {
+                RichiestaFatturazione richiesta = RichiestaFatturazione.builder()
+                        .nomeCliente(c.getName())
+                        .giornate(c.getGiornate())
+                        .tariffa(c.getTariffa())
+                        .mese(conversation.getMonth())
+                        .anno(conversation.getYear())
+                        .build();
+                richiestaFatturazioneRepository.save(richiesta);
+            }
 
             conversation.setCurrentState(ConversationState.COMPLETED);
             return "Email inviata!";
@@ -284,7 +301,7 @@ public class ConversationService {
 
             body.append("<tr>");
             body.append(String.format("<td>%s</td>", c.getName()));
-            body.append(String.format("<td style='text-align: center;'>%d</td>", c.getGiornate()));
+            body.append(String.format("<td style='text-align: center;'>%s</td>", c.getGiornate().stripTrailingZeros().toPlainString()));
             body.append(String.format("<td style='text-align: right;'>&euro;%.2f</td>", c.getTariffa()));
             body.append(String.format("<td style='text-align: right;'>&euro;%.2f</td>", total));
             body.append("</tr>");

@@ -15,7 +15,7 @@ class CommessaTest {
     void calculateTotal_shouldReturnCorrectTotal() {
         Commessa commessa = Commessa.builder()
                 .name("Progetto Test")
-                .giornate(5)
+                .giornate(new BigDecimal("5"))
                 .tariffa(new BigDecimal("250.00"))
                 .build();
 
@@ -40,7 +40,7 @@ class CommessaTest {
     void calculateTotal_shouldReturnZero_whenTariffaIsNull() {
         Commessa commessa = Commessa.builder()
                 .name("Progetto Test")
-                .giornate(5)
+                .giornate(new BigDecimal("5"))
                 .tariffa(null)
                 .build();
 
@@ -62,7 +62,7 @@ class CommessaTest {
     void calculateTotal_shouldReturnZero_whenGiornateIsZero() {
         Commessa commessa = Commessa.builder()
                 .name("Progetto Test")
-                .giornate(0)
+                .giornate(BigDecimal.ZERO)
                 .tariffa(new BigDecimal("250.00"))
                 .build();
 
@@ -74,12 +74,12 @@ class CommessaTest {
     void builder_shouldCreateObjectCorrectly() {
         Commessa commessa = Commessa.builder()
                 .name("Progetto ABC")
-                .giornate(10)
+                .giornate(new BigDecimal("10"))
                 .tariffa(new BigDecimal("300.00"))
                 .build();
 
         assertEquals("Progetto ABC", commessa.getName());
-        assertEquals(10, commessa.getGiornate());
+        assertEquals(0, new BigDecimal("10").compareTo(commessa.getGiornate()));
         assertEquals(new BigDecimal("300.00"), commessa.getTariffa());
     }
 }

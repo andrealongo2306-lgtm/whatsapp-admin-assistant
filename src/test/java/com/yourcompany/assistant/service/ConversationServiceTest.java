@@ -304,7 +304,7 @@ class ConversationServiceTest {
             conversationWithCommesse.setCurrentCommessaIndex(1);
             conversationWithCommesse.addCommessa(Commessa.builder()
                     .name("Progetto A")
-                    .giornate(5)
+                    .giornate(new BigDecimal("5"))
                     .tariffa(new BigDecimal("250"))
                     .build());
 
@@ -355,7 +355,7 @@ class ConversationServiceTest {
 
             conversationInReview.addCommessa(Commessa.builder()
                     .name("Progetto A")
-                    .giornate(5)
+                    .giornate(new BigDecimal("5"))
                     .tariffa(new BigDecimal("250"))
                     .build());
         }

@@ -3,6 +3,7 @@ package com.yourcompany.assistant.scheduler;
 import com.yourcompany.assistant.enums.ConversationState;
 import com.yourcompany.assistant.model.Conversation;
 import com.yourcompany.assistant.repository.ConversationRepository;
+import com.yourcompany.assistant.repository.TestReco;
 import com.yourcompany.assistant.service.TwilioService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -93,22 +94,28 @@ public class SessionCleanupScheduler {
      */
     @Scheduled(cron = "0 53 9 * * *")
     public void monthlyBillingReminder() {
-        // TODO: riabilitare controllo ultimo giorno del mese dopo test
-        // LocalDate today = LocalDate.now();
-        // LocalDate lastDayOfMonth = today.withDayOfMonth(today.lengthOfMonth());
-        // if (!today.equals(lastDayOfMonth)) {
-        //     return;
-        // }
+        // TODO: controllo ultimo giorno del mese dopo test
+        LocalDate today = LocalDate.now();
+        LocalDate lastDayOfMonth = today.withDayOfMonth(today.lengthOfMonth());
+        if (!today.equals(lastDayOfMonth)) {
+            return;
+        }
+        TestReco testReco = new TestReco("da");
 
         log.info("Invio promemoria fatturazione (TEST - ogni giorno alle 9:32)");
         log.info("Admin phone number: {}", adminPhoneNumber);
 
         try {
+            // Formatta il numero con prefisso whatsapp: per matchare il formato del webhook Twilio
+            String formattedPhoneNumber = adminPhoneNumber.startsWith("whatsapp:")
+                    ? adminPhoneNumber
+                    : "whatsapp:" + adminPhoneNumber;
+
             // Reset o crea conversazione per admin
             log.info("Step 1: Recupero conversazione...");
-            Conversation conversation = conversationRepository.findById(adminPhoneNumber)
+            Conversation conversation = conversationRepository.findById(formattedPhoneNumber)
                     .orElse(Conversation.builder()
-                            .phoneNumber(adminPhoneNumber)
+                            .phoneNumber(formattedPhoneNumber)
                             .createdAt(LocalDateTime.now())
                             .build());
 

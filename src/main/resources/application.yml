@@ -32,3 +32,6 @@ app:
     phone-number: ${ADMIN_PHONE}
   client:
     email: ${CLIENT_EMAIL}
+  jwt:
+    secret: ${JWT_SECRET}
+    expiration: 86400000

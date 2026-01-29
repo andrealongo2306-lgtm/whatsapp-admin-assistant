@@ -33,7 +33,7 @@ class ConversationTest {
     void addCommessa_shouldAddCommessa() {
         Commessa commessa = Commessa.builder()
                 .name("Progetto Test")
-                .giornate(5)
+                .giornate(new BigDecimal(5))
                 .tariffa(new BigDecimal("250.00"))
                 .build();
 
@@ -50,7 +50,7 @@ class ConversationTest {
 
         Commessa commessa = Commessa.builder()
                 .name("Progetto Test")
-                .giornate(5)
+                .giornate(new BigDecimal(5))
                 .tariffa(new BigDecimal("250.00"))
                 .build();
 

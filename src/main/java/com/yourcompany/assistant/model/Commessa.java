@@ -13,13 +13,13 @@ import java.math.BigDecimal;
 @AllArgsConstructor
 public class Commessa {
     private String name;
-    private Integer giornate;
+    private BigDecimal giornate;
     private BigDecimal tariffa;
-    
+
     public BigDecimal calculateTotal() {
         if (giornate == null || tariffa == null) {
             return BigDecimal.ZERO;
         }
-        return tariffa.multiply(BigDecimal.valueOf(giornate));
+        return tariffa.multiply(giornate);
     }
 }
