@@ -6,6 +6,7 @@ import com.yourcompany.assistant.model.CommessaAnagrafica;
 import com.yourcompany.assistant.model.Conversation;
 import com.yourcompany.assistant.repository.CommessaAnagraficaRepository;
 import com.yourcompany.assistant.repository.ConversationRepository;
+import com.yourcompany.assistant.repository.RichiestaFatturazioneRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -40,6 +41,9 @@ class ConversationServiceTest {
 
     @Mock
     private CommessaAnagraficaRepository commessaAnagraficaRepository;
+
+    @Mock
+    private RichiestaFatturazioneRepository richiestaFatturazioneRepository;
 
     @Mock
     private TwilioService twilioService;
@@ -161,7 +165,7 @@ class ConversationServiceTest {
             when(conversationRepository.findById(PHONE_NUMBER)).thenReturn(Optional.of(existingConversation));
             when(conversationRepository.save(any(Conversation.class))).thenAnswer(i -> i.getArgument(0));
 
-            conversationService.processMessage(PHONE_NUMBER, "Gennaio-2035");
+            conversationService.processMessage(PHONE_NUMBER, "Gennaio-2055");
 
             verify(twilioService).sendWhatsAppMessage(eq(PHONE_NUMBER), messageCaptor.capture());
             assertTrue(messageCaptor.getValue().contains("Anno non valido"));
