@@ -316,6 +316,7 @@ public class ConversationService {
         body.append("</table>");
 
         body.append("<p>Cordiali saluti</p>");
+        body.append("<p>Andrea</p>");
 
         return EmailDraft.builder()
                 .subject(subject)
