@@ -27,6 +27,7 @@ gmail:
 
 # Application Configuration
 app:
+  base-url: ${BASE_URL}
   session-timeout-minutes: 30
   admin:
     phone-number: ${ADMIN_PHONE}
