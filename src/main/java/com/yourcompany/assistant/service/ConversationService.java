@@ -85,7 +85,7 @@ public class ConversationService {
      */
     private String handleInitialState(Conversation conversation, String message) {
         conversation.setCurrentState(ConversationState.WAITING_MONTH_YEAR);
-        return "Ciao! Sono il tuo assistente. E' ora di inviare l'autorizzazione alla fatturazione. Mese e anno? (es: Gennaio-2024)";
+        return "Ciao! Sono il tuo assistente persona, oggi è l'ultimo giorno del mese. E' ora di inviare l'autorizzazione alla fatturazione. Mese e anno? (es: Gennaio-2024)";
     }
 
     /**
@@ -220,7 +220,7 @@ public class ConversationService {
             grandTotal = grandTotal.add(c.calculateTotal());
         }
 
-        return String.format("Totale: €%.2f - Confermi? 1=Invia, 2=Annulla", grandTotal);
+        return String.format("Totale: \u20ac%.2f - Confermi? 1=Invia, 2=Annulla", grandTotal);
     }
 
     private String handleSendEmail(Conversation conversation) {
