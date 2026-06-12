@@ -85,6 +85,20 @@ class ConversationServiceTest {
         }
 
         @Test
+        @DisplayName("Il messaggio di benvenuto contiene il testo aggiornato")
+        void processMessage_shouldSendUpdatedWelcomeMessage_forNewUser() {
+            when(conversationRepository.findById(PHONE_NUMBER)).thenReturn(Optional.empty());
+            when(conversationRepository.save(any(Conversation.class))).thenAnswer(i -> i.getArgument(0));
+
+            conversationService.processMessage(PHONE_NUMBER, "start");
+
+            verify(twilioService).sendWhatsAppMessage(eq(PHONE_NUMBER), messageCaptor.capture());
+            String message = messageCaptor.getValue();
+            assertTrue(message.contains("assistente persona"));
+            assertTrue(message.contains("ultimo giorno del mese"));
+        }
+
+        @Test
         @DisplayName("Lo stato passa a WAITING_MONTH_YEAR dopo messaggio iniziale")
         void processMessage_shouldTransitionToWaitingMonthYear() {
             when(conversationRepository.findById(PHONE_NUMBER)).thenReturn(Optional.empty());
