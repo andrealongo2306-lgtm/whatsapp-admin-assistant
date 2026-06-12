@@ -85,7 +85,9 @@ public class ConversationService {
      */
     private String handleInitialState(Conversation conversation, String message) {
         conversation.setCurrentState(ConversationState.WAITING_MONTH_YEAR);
-        return "Ciao! Sono il tuo assistente. E' ora di inviare l'autorizzazione alla fatturazione. Mese e anno? (es: Gennaio-2024)";
+        // TODO: valutare se mostrare 'oggi è l'ultimo giorno del mese' solo quando è effettivamente
+        // l'ultimo giorno del mese, in linea con il TODO su monthlyBillingReminder in SessionCleanupScheduler
+        return "Ciao! Sono il tuo assistente persona, oggi è l'ultimo giorno del mese. E' ora di inviare l'autorizzazione alla fatturazione. Mese e anno? (es: Gennaio-2024)";
     }
 
     /**
@@ -220,7 +222,7 @@ public class ConversationService {
             grandTotal = grandTotal.add(c.calculateTotal());
         }
 
-        return String.format("Totale: €%.2f - Confermi? 1=Invia, 2=Annulla", grandTotal);
+        return String.format("Totale: \u20ac%.2f - Confermi? 1=Invia, 2=Annulla", grandTotal);
     }
 
     private String handleSendEmail(Conversation conversation) {

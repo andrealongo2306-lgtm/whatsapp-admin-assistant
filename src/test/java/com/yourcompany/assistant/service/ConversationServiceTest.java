@@ -81,6 +81,8 @@ class ConversationServiceTest {
 
             verify(twilioService).sendWhatsAppMessage(eq(PHONE_NUMBER), messageCaptor.capture());
             String message = messageCaptor.getValue();
+            assertTrue(message.contains("assistente persona"));
+            assertTrue(message.contains("ultimo giorno del mese"));
             assertTrue(message.contains("Mese e anno"));
         }
 
