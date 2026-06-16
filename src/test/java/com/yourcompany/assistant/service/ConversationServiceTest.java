@@ -81,7 +81,9 @@ class ConversationServiceTest {
 
             verify(twilioService).sendWhatsAppMessage(eq(PHONE_NUMBER), messageCaptor.capture());
             String message = messageCaptor.getValue();
-            assertTrue(message.contains("Mese e anno"));
+            // Verifica che il messaggio inviato corrisponda alla costante WELCOME_MESSAGE
+            assertEquals(ConversationService.WELCOME_MESSAGE, message);
+            assertTrue(message.contains("Mese-Anno"));
         }
 
         @Test
@@ -520,6 +522,24 @@ class ConversationServiceTest {
 
             verify(conversationRepository).save(conversationCaptor.capture());
             assertEquals(ConversationState.WAITING_MONTH_YEAR, conversationCaptor.getValue().getCurrentState());
+        }
+    }
+
+    @Nested
+    @DisplayName("Test WELCOME_MESSAGE costante")
+    class WelcomeMessageTests {
+
+        @Test
+        @DisplayName("WELCOME_MESSAGE non è null o vuoto")
+        void welcomeMessage_shouldNotBeNullOrEmpty() {
+            assertNotNull(ConversationService.WELCOME_MESSAGE);
+            assertFalse(ConversationService.WELCOME_MESSAGE.isBlank());
+        }
+
+        @Test
+        @DisplayName("WELCOME_MESSAGE contiene istruzioni sul formato Mese-Anno")
+        void welcomeMessage_shouldContainFormatInstructions() {
+            assertTrue(ConversationService.WELCOME_MESSAGE.contains("Mese-Anno"));
         }
     }
 }
