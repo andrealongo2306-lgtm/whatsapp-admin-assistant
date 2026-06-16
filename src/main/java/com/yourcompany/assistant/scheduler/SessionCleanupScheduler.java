@@ -3,7 +3,6 @@ package com.yourcompany.assistant.scheduler;
 import com.yourcompany.assistant.enums.ConversationState;
 import com.yourcompany.assistant.model.Conversation;
 import com.yourcompany.assistant.repository.ConversationRepository;
-import com.yourcompany.assistant.service.ConversationService;
 import com.yourcompany.assistant.service.TwilioService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -19,7 +18,7 @@ import java.util.ArrayList;
 
 /**
  * Scheduler per la pulizia automatica delle sessioni scadute
- *
+ * 
  * Esegue una pulizia periodica delle conversazioni non aggiornate
  * oltre il timeout configurato
  */
@@ -54,26 +53,26 @@ public class SessionCleanupScheduler {
     @Scheduled(cron = "0 0 * * * *")
     public void cleanupExpiredSessions() {
         log.info("Avvio pulizia sessioni scadute (timeout: {} minuti)", sessionTimeoutMinutes);
-
+        
         try {
             LocalDateTime cutoffTime = LocalDateTime.now().minusMinutes(sessionTimeoutMinutes);
-
+            
             var expiredConversations = conversationRepository.findByLastUpdatedBefore(cutoffTime);
-
+            
             if (expiredConversations.isEmpty()) {
                 log.info("Nessuna sessione scaduta trovata");
                 return;
             }
-
+            
             conversationRepository.deleteAll(expiredConversations);
-
+            
             log.info("Pulite {} sessioni scadute", expiredConversations.size());
-
+            
         } catch (Exception e) {
             log.error("Errore durante la pulizia delle sessioni: {}", e.getMessage(), e);
         }
     }
-
+    
     /**
      * Statistiche giornaliere (opzionale)
      * Cron: ogni giorno alle 9:00
@@ -127,9 +126,10 @@ public class SessionCleanupScheduler {
             log.info("Step 3: Salvataggio conversazione...");
             conversationRepository.save(conversation);
 
-            // Invia messaggio (testo allineato a ConversationService.WELCOME_MESSAGE)
+            // Invia messaggio
             log.info("Step 4: Invio messaggio WhatsApp...");
-            String sid = twilioService.sendWhatsAppMessage(adminPhoneNumber, ConversationService.WELCOME_MESSAGE);
+            String message = "Ciao Andrea! \uD83D\uDC4B Sono il tuo assistente per la fatturazione. Iniziamo! Per quale mese e anno vuoi inviare l'autorizzazione? (es: Gennaio-2024)";
+            String sid = twilioService.sendWhatsAppMessage(adminPhoneNumber, message);
 
             log.info("Step 5: Messaggio inviato con SID: {}", sid);
             log.info("Promemoria fatturazione inviato a {}", adminPhoneNumber);
