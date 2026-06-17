@@ -128,7 +128,7 @@ public class SessionCleanupScheduler {
 
             // Invia messaggio
             log.info("Step 4: Invio messaggio WhatsApp...");
-            String message = "Ciao! Sono il tuo assistente. E' ora di inviare l'autorizzazione alla fatturazione. Mese e anno? (es: Gennaio-2024)";
+            String message = "Benvenuto! Sono il tuo assistente per la gestione delle autorizzazioni alla fatturazione. Per quale mese e anno desideri procedere? (es: Gennaio-2024)";
             String sid = twilioService.sendWhatsAppMessage(adminPhoneNumber, message);
 
             log.info("Step 5: Messaggio inviato con SID: {}", sid);
