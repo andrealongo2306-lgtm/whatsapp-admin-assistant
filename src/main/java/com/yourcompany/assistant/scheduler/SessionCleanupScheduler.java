@@ -3,6 +3,7 @@ package com.yourcompany.assistant.scheduler;
 import com.yourcompany.assistant.enums.ConversationState;
 import com.yourcompany.assistant.model.Conversation;
 import com.yourcompany.assistant.repository.ConversationRepository;
+import com.yourcompany.assistant.service.ConversationService;
 import com.yourcompany.assistant.service.TwilioService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -126,10 +127,9 @@ public class SessionCleanupScheduler {
             log.info("Step 3: Salvataggio conversazione...");
             conversationRepository.save(conversation);
 
-            // Invia messaggio
+            // Invia messaggio — testo allineato con ConversationService.WELCOME_MESSAGE
             log.info("Step 4: Invio messaggio WhatsApp...");
-            String message = "Ciao! Sono il tuo assistente. E' ora di inviare l'autorizzazione alla fatturazione. Mese e anno? (es: Gennaio-2024)";
-            String sid = twilioService.sendWhatsAppMessage(adminPhoneNumber, message);
+            String sid = twilioService.sendWhatsAppMessage(adminPhoneNumber, ConversationService.WELCOME_MESSAGE);
 
             log.info("Step 5: Messaggio inviato con SID: {}", sid);
             log.info("Promemoria fatturazione inviato a {}", adminPhoneNumber);
