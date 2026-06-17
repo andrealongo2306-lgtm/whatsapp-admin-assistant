@@ -81,7 +81,9 @@ class ConversationServiceTest {
 
             verify(twilioService).sendWhatsAppMessage(eq(PHONE_NUMBER), messageCaptor.capture());
             String message = messageCaptor.getValue();
-            assertTrue(message.contains("Mese e anno"));
+            // Verifica che il messaggio inviato corrisponda alla costante di benvenuto
+            assertEquals(ConversationService.WELCOME_MESSAGE, message);
+            assertTrue(message.contains("Mese e anno") || message.contains("mese"));
         }
 
         @Test
@@ -520,6 +522,30 @@ class ConversationServiceTest {
 
             verify(conversationRepository).save(conversationCaptor.capture());
             assertEquals(ConversationState.WAITING_MONTH_YEAR, conversationCaptor.getValue().getCurrentState());
+        }
+    }
+
+    @Nested
+    @DisplayName("Test WELCOME_MESSAGE")
+    class WelcomeMessageTests {
+
+        @Test
+        @DisplayName("La costante WELCOME_MESSAGE è definita e non vuota")
+        void welcomeMessage_shouldBeDefined() {
+            assertNotNull(ConversationService.WELCOME_MESSAGE);
+            assertFalse(ConversationService.WELCOME_MESSAGE.isBlank());
+        }
+
+        @Test
+        @DisplayName("La costante WELCOME_MESSAGE contiene le istruzioni sul formato")
+        void welcomeMessage_shouldContainFormatInstructions() {
+            // Il messaggio deve contenere l'esempio del formato atteso (es: Gennaio-2024)
+            assertTrue(
+                ConversationService.WELCOME_MESSAGE.contains("2024") ||
+                ConversationService.WELCOME_MESSAGE.contains("es:") ||
+                ConversationService.WELCOME_MESSAGE.contains("Esempio"),
+                "Il messaggio di benvenuto deve includere un esempio del formato atteso"
+            );
         }
     }
 }
