@@ -39,6 +39,16 @@ public class ConversationService {
         "Luglio", "Agosto", "Settembre", "Ottobre", "Novembre", "Dicembre"
     };
 
+    /**
+     * Messaggio di benvenuto inviato all'utente all'avvio della conversazione.
+     * ATTENZIONE: questa costante è utilizzata anche in SessionCleanupScheduler.monthlyBillingReminder().
+     * In caso di modifica, aggiornare entrambi i punti.
+     */
+    static final String WELCOME_MESSAGE =
+            "Ciao Andrea! 👋 Sono il tuo assistente per la fatturazione.\n" +
+            "Indica il mese e l'anno per cui vuoi richiedere l'autorizzazione alla fatturazione.\n" +
+            "Esempio: Gennaio-2024";
+
     public void processMessage(String phoneNumber, String messageBody) {
         log.info("Processando messaggio da {}: {}", phoneNumber, messageBody);
 
@@ -85,7 +95,7 @@ public class ConversationService {
      */
     private String handleInitialState(Conversation conversation, String message) {
         conversation.setCurrentState(ConversationState.WAITING_MONTH_YEAR);
-        return "Ciao! Sono il tuo assistente. E' ora di inviare l'autorizzazione alla fatturazione. Mese e anno? (es: Gennaio-2024)";
+        return WELCOME_MESSAGE;
     }
 
     /**
@@ -220,7 +230,7 @@ public class ConversationService {
             grandTotal = grandTotal.add(c.calculateTotal());
         }
 
-        return String.format("Totale: €%.2f - Confermi? 1=Invia, 2=Annulla", grandTotal);
+        return String.format("Totale: \u20ac%.2f - Confermi? 1=Invia, 2=Annulla", grandTotal);
     }
 
     private String handleSendEmail(Conversation conversation) {
